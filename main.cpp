@@ -5,6 +5,7 @@
 #include <list>
 #include <cmath>
 #include <stdlib.h>
+#include <algorithm>
 
 using namespace std;
 
@@ -17,6 +18,13 @@ public:
     int ready_time;
     int due_date;
     int service_duration;
+};
+
+class Saving{
+public:
+    Customer i;
+    Customer j;
+    double saving;
 };
 
 //Zmienne globalne
@@ -32,6 +40,16 @@ void print_customersVector(vector<Customer>& v) {
         cout<<(*it).id<<" "<<(*it).x<<" "<<(*it).y<<" "<<(*it).demand<<" "<<(*it).ready_time<<" "<<(*it).due_date<<" "<<(*it).service_duration<<endl;
     }
 }
+
+//Funkcja wypisujaca tablice savingsow
+void print_savingsArray(Saving savingsArray[], unsigned long savingsamount){
+    unsigned long i;
+    for(i=0;i<savingsamount;++i){
+        cout<<savingsArray[i].saving<<endl;
+    }
+}
+
+bool sortcomparison (Saving i,Saving j) { return (i.saving>j.saving); }
 
 
 //Funkcja wczytujaca dane z pliku w formacie solomona
@@ -65,8 +83,7 @@ void data_input(char * filename){
     //Wyrzucam ostatni element z vectora, bo ze wzgledu na pusta ostatnia linie pliku powtarza sie ostatni customer
     customersVector.pop_back();
 
-    //Wlaczanie kontrolnego wypisywania vectora
-    //print_customersVector(customersVector);
+
 
     file.close();
 }
@@ -109,23 +126,16 @@ void data_input_n(char * filename, char * data_quantity){
         customersVector.pop_back();
     }
 
-    //Wlaczanie kontrolnego wypisywania vectora
-    //print_customersVector(customersVector);
-
     file.close();
 }
 
+
+
+
+
+
+
 /*
-
-//Funkcja obliczajaca dlugosc trasy miedzy dwoma punktami
-double distance(Customer &point1, Customer &point2){
-
-    return sqrt(((point1.x-point2.x)*(point1.x-point2.x))+((point1.y-point2.y)*(point1.y-point2.y)));
-
-}
-
-
-
 //Funkcja sprawdzajaca poprawnosc trasy
 int computeRoute(list<Customer> routeNodesList) {
     list<Customer>:: iterator it1=routeNodesList.begin();
@@ -156,6 +166,39 @@ int computeRoute(list<Customer> routeNodesList) {
 }
 */
 
+//Funkcja obliczajaca dlugosc trasy miedzy dwoma punktami
+double distance1(Customer point1, Customer point2){
+
+    //cout<<point1.x<<" "<<point1.y<<"  "<<point2.x<<" "<<point2.y<<endl;
+
+    return sqrt(((point1.x-point2.x)*(point1.x-point2.x))+((point1.y-point2.y)*(point1.y-point2.y)));
+
+}
+
+
+void compute_savings(Saving savingsArray[]){
+
+    Saving temp;
+    Customer magazyn=customersVector.at(0);
+
+    unsigned long savingsposition=0;
+
+    for(unsigned i=1; i<customersVector.size(); i++) {
+        for(unsigned j=i+1;j<customersVector.size();j++)
+        {
+            //cout<<i<<"  "<<j<<endl;
+            temp.i=customersVector.at(i);
+            temp.j=customersVector.at(j);
+            temp.saving=distance1(magazyn, temp.i)+distance1(magazyn,temp.j)-distance1(temp.i, temp.j);
+
+            savingsArray[savingsposition]=temp;
+            savingsposition++;
+        }
+
+    }
+
+}
+
 int main(int argc, char* argv[]) {
 
     if(argc==2){
@@ -169,7 +212,29 @@ int main(int argc, char* argv[]) {
     }
     else{
         printf("Niewlasciwa liczba parametrow\n");
+        return 1;
     }
+
+    //Wlaczanie kontrolnego wypisywania vectora
+    print_customersVector(customersVector);
+
+    //Wyliczenie dlugosci tablicy savingsow
+    unsigned long savingsamount=(customersVector.size()*(customersVector.size()-1))/2;
+
+    //Deklaracja tablicy savingsow
+    Saving savingsArray[savingsamount];
+
+    //Uruchomienie procedury obliczania savingsow
+    compute_savings(savingsArray);
+
+    //Kontrolne wypisywanie tablicy savingsow
+    //print_savingsArray(savingsArray,savingsamount);
+
+    //Sortowanie tablicy savingsow
+    sort(savingsArray,savingsArray+savingsamount,sortcomparison);
+
+    //Kontrolne wypisywanie tablicy savingsow
+    //print_savingsArray(savingsArray,savingsamount);
 
     return 0;
 }

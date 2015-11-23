@@ -26,3 +26,9 @@
 *.exe
 *.out
 *.app
+
+OK1
+CMakeFiles
+CMakeCache.txt
+*.cmake
+Makefile

@@ -1,15 +1,15 @@
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <fstream>
 #include <vector>
 #include <list>
 #include <cmath>
-#include <stdlib.h>
+#include <cstdlib>
 #include <algorithm>
 
 using namespace std;
 
-class Customer{
+class Customer {
 public:
     int id;
     int x;
@@ -20,7 +20,11 @@ public:
     int service_duration;
 };
 
-class Saving{
+bool operator==(const Customer &me, const Customer &another) {
+    return me.id == another.id;
+}
+
+class Saving {
 public:
     Customer i;
     Customer j;
@@ -34,26 +38,27 @@ int vehiclesCapacity;
 vector<Customer> customersVector;
 
 //Funkcja wypisujaca kontrolnie vector
-void print_customersVector(vector<Customer>& v) {
+void print_customersVector(vector<Customer> &v) {
     vector<Customer>::iterator it;
-    for(it = v.begin(); it != v.end(); ++it) {
-        cout<<(*it).id<<" "<<(*it).x<<" "<<(*it).y<<" "<<(*it).demand<<" "<<(*it).ready_time<<" "<<(*it).due_date<<" "<<(*it).service_duration<<endl;
+    for (it = v.begin(); it != v.end(); ++it) {
+        cout << (*it).id << " " << (*it).x << " " << (*it).y << " " << (*it).demand << " " << (*it).ready_time << " " <<
+        (*it).due_date << " " << (*it).service_duration << endl;
     }
 }
 
 //Funkcja wypisujaca tablice savingsow
-void print_savingsArray(Saving savingsArray[], unsigned long savingsamount){
+void print_savingsArray(Saving savingsArray[], unsigned long savingsamount) {
     unsigned long i;
-    for(i=0;i<savingsamount;++i){
-        cout<<savingsArray[i].saving<<endl;
+    for (i = 0; i < savingsamount; ++i) {
+        cout << savingsArray[i].saving << endl;
     }
 }
 
-bool sortcomparison (Saving i,Saving j) { return (i.saving>j.saving); }
+bool sortcomparison(Saving i, Saving j) { return (i.saving > j.saving); }
 
 
 //Funkcja wczytujaca dane z pliku w formacie solomona
-void data_input(char * filename){
+void data_input(char *filename) {
 
     string truncLine;
     fstream file;
@@ -62,21 +67,20 @@ void data_input(char * filename){
     Customer temp;
 
     //Omijanie wstepnych linii bez danych
-    for(int i=0;i<4;i++)
-        getline(file,truncLine);
+    for (int i = 0; i < 4; i++)
+        getline(file, truncLine);
 
-    file>>vehiclesNumber>>vehiclesCapacity;
+    file >> vehiclesNumber >> vehiclesCapacity;
 
     //Wlaczenie wypisywania kontrolnego liczby ciezarowek i ich ladownosci
     //printf("%d %d\n", vehiclesNumber,vehiclesCapacity);
 
     //Omijanie kolejnych linii bez danych
-    for(int i=0;i<4;i++)
-        getline(file,truncLine);
+    for (int i = 0; i < 4; i++)
+        getline(file, truncLine);
 
-    while(!file.eof())
-    {
-        file>>temp.id>>temp.x>>temp.y>>temp.demand>>temp.ready_time>>temp.due_date>>temp.service_duration;
+    while (!file.eof()) {
+        file >> temp.id >> temp.x >> temp.y >> temp.demand >> temp.ready_time >> temp.due_date >> temp.service_duration;
         customersVector.push_back(temp);
     }
 
@@ -84,12 +88,11 @@ void data_input(char * filename){
     customersVector.pop_back();
 
 
-
     file.close();
 }
 
 //Funkcja wczytywania okreslonej liczby danych
-void data_input_n(char * filename, char * data_quantity){
+void data_input_n(char *filename, char *data_quantity) {
     string truncLine;
     fstream file;
     file.open(filename, fstream::in);
@@ -98,31 +101,30 @@ void data_input_n(char * filename, char * data_quantity){
     Customer temp;
 
     //Omijanie wstepnych linii bez danych
-    for(int i=0;i<4;i++)
-        getline(file,truncLine);
+    for (int i = 0; i < 4; i++)
+        getline(file, truncLine);
 
-    file>>vehiclesNumber>>vehiclesCapacity;
+    file >> vehiclesNumber >> vehiclesCapacity;
 
     //Wlaczenie wypisywania kontrolnego liczby ciezarowek i ich ladownosci
     //printf("%d %d\n", vehiclesNumber,vehiclesCapacity);
 
     //Omijanie kolejnych linii bez danych
-    for(int i=0;i<4;i++)
-        getline(file,truncLine);
+    for (int i = 0; i < 4; i++)
+        getline(file, truncLine);
 
-    n=atoi(data_quantity);
+    n = atoi(data_quantity);
 
     //Wczytywanie danych magazynu i n klientow
 
-    for(int i=0;i<=n && !file.eof();i++)
-    {
-        file>>temp.id>>temp.x>>temp.y>>temp.demand>>temp.ready_time>>temp.due_date>>temp.service_duration;
+    for (int i = 0; i <= n && !file.eof(); i++) {
+        file >> temp.id >> temp.x >> temp.y >> temp.demand >> temp.ready_time >> temp.due_date >> temp.service_duration;
         customersVector.push_back(temp);
     }
 
 
     //Wyrzucanie ostatniego elementu z vectora, gdy dotrzemy do konca pliku (ostatni element jest taki sam jak przedostatni)
-    if(file.eof()){
+    if (file.eof()) {
         customersVector.pop_back();
     }
 
@@ -167,31 +169,30 @@ int computeRoute(list<Customer> routeNodesList) {
 */
 
 //Funkcja obliczajaca dlugosc trasy miedzy dwoma punktami
-double distance1(Customer point1, Customer point2){
+double distance1(Customer point1, Customer point2) {
 
     //cout<<point1.x<<" "<<point1.y<<"  "<<point2.x<<" "<<point2.y<<endl;
 
-    return sqrt(((point1.x-point2.x)*(point1.x-point2.x))+((point1.y-point2.y)*(point1.y-point2.y)));
+    return sqrt(((point1.x - point2.x) * (point1.x - point2.x)) + ((point1.y - point2.y) * (point1.y - point2.y)));
 
 }
 
 
-void compute_savings(Saving savingsArray[]){
+void compute_savings(Saving savingsArray[]) {
 
     Saving temp;
-    Customer magazyn=customersVector.at(0);
+    Customer magazyn = customersVector.at(0);
 
-    unsigned long savingsposition=0;
+    unsigned long savingsposition = 0;
 
-    for(unsigned i=1; i<customersVector.size(); i++) {
-        for(unsigned j=i+1;j<customersVector.size();j++)
-        {
+    for (unsigned i = 1; i < customersVector.size(); i++) {
+        for (unsigned j = i + 1; j < customersVector.size(); j++) {
             //cout<<i<<"  "<<j<<endl;
-            temp.i=customersVector.at(i);
-            temp.j=customersVector.at(j);
-            temp.saving=distance1(magazyn, temp.i)+distance1(magazyn,temp.j)-distance1(temp.i, temp.j);
+            temp.i = customersVector.at(i);
+            temp.j = customersVector.at(j);
+            temp.saving = distance1(magazyn, temp.i) + distance1(magazyn, temp.j) - distance1(temp.i, temp.j);
 
-            savingsArray[savingsposition]=temp;
+            savingsArray[savingsposition] = temp;
             savingsposition++;
         }
 
@@ -199,18 +200,98 @@ void compute_savings(Saving savingsArray[]){
 
 }
 
-int main(int argc, char* argv[]) {
+void printRoute(vector<Customer> route) {
+    for (Customer a:route) {
+        printf("%i -> ", a.id);
+    }
+    printf("\n");
 
-    if(argc==2){
+}
+
+void printRoutes(vector<vector<Customer>> routes) {
+    for (auto r:routes) {
+        printRoute(r);
+    }
+}
+
+vector<Customer> mergeRoute(vector<Customer> a, vector<Customer> b) {
+    a.erase(a.end() - 1);
+    b.erase(b.begin());
+
+    vector<Customer> AB;
+    AB.reserve(a.size() + b.size());
+    AB.insert(AB.end(), a.begin(), a.end()); // ♫ Really don't care
+    AB.insert(AB.end(), b.begin(), b.end()); //…believe me, it's OK
+    return AB;
+}
+
+bool isConnectionFeasible(vector<Customer> pre, vector<Customer> post) {
+    return true; //TODO czy się opłaca i czy można połączyć pre + post
+}
+
+
+vector<vector<Customer>> createNaiveRoutes() {
+    vector<vector<Customer>> routes;
+    for (Customer c:customersVector) {
+        if (c.id != 0) {
+            vector<Customer> tmpRoute = {customersVector.at(0), c, customersVector.at(0)};
+            routes.push_back(tmpRoute);
+        }
+    }
+    return routes;
+}
+
+vector<vector<Customer>> performSavings(vector<vector<Customer>> routes, vector<Saving> savingsArray) {
+    for (Saving s: savingsArray) {
+        vector<Customer> pre, post;
+        vector<vector<Customer>>::iterator preIndex, postIndex;
+        vector<vector<Customer>>::iterator i = routes.begin();
+        for (vector<Customer> route: routes) {
+            if (route.at(1) == s.j) {
+                post = route;
+                postIndex = i;
+            } else if (route.at(route.size() - 2) == s.i) {
+                pre = route;
+                preIndex = i;
+            }
+            if (!pre.empty() && !post.empty() && isConnectionFeasible(pre, post)) break;
+            ++i;
+        }
+        if (!pre.empty() && !post.empty()) {
+            vector<Customer> newRoute = mergeRoute(pre, post);
+            if (preIndex > postIndex) {
+                routes.erase(preIndex);
+                routes.erase(postIndex);
+            } else {
+                routes.erase(postIndex);
+                routes.erase(preIndex);
+            }
+            routes.push_back(newRoute);
+        }
+    }
+    return routes;
+}
+
+vector<Saving> convert2vector(Saving savingArr[], unsigned long n) {
+    vector<Saving> savings;
+    for (int i = 0; i < n; ++i) {
+        savings.push_back(savingArr[i]);
+    }
+    return savings;
+}
+
+int main(int argc, char *argv[]) {
+
+    if (argc == 2) {
         //Wczytywanie danych
         data_input(argv[1]);
 
     }
-        else if(argc==3){
+    else if (argc == 3) {
         //Wczytywanie okreslonej ilosci danych
-        data_input_n(argv[1],argv[2]);
+        data_input_n(argv[1], argv[2]);
     }
-    else{
+    else {
         printf("Niewlasciwa liczba parametrow\n");
         return 1;
     }
@@ -219,7 +300,7 @@ int main(int argc, char* argv[]) {
     print_customersVector(customersVector);
 
     //Wyliczenie dlugosci tablicy savingsow
-    unsigned long savingsamount=(customersVector.size()*(customersVector.size()-1))/2;
+    unsigned long savingsamount = (customersVector.size() * (customersVector.size() - 1)) / 2;
 
     //Deklaracja tablicy savingsow
     Saving savingsArray[savingsamount];
@@ -231,10 +312,19 @@ int main(int argc, char* argv[]) {
     //print_savingsArray(savingsArray,savingsamount);
 
     //Sortowanie tablicy savingsow
-    sort(savingsArray,savingsArray+savingsamount,sortcomparison);
+    sort(savingsArray, savingsArray + savingsamount, sortcomparison);
 
     //Kontrolne wypisywanie tablicy savingsow
     //print_savingsArray(savingsArray,savingsamount);
 
+    vector<vector<Customer>> routes = createNaiveRoutes();
+
+    //printRoutes(routes);
+
+    vector<Saving> savings = convert2vector(savingsArray, savingsamount);
+
+    routes = performSavings(routes, savings);
+
+    //printRoutes(routes);
     return 0;
 }

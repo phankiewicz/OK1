@@ -247,10 +247,16 @@ vector<vector<Customer>> performSavings(vector<vector<Customer>> routes, vector<
         vector<vector<Customer>>::iterator preIndex, postIndex;
         vector<vector<Customer>>::iterator i = routes.begin();
         for (vector<Customer> route: routes) {
-            if (route.at(1) == s.j) {
+            if (route.at(1) == s.j && post.empty()) {
                 post = route;
                 postIndex = i;
-            } else if (route.at(route.size() - 2) == s.i) {
+            } else if (route.at(1) == s.i && post.empty()) {
+                post = route;
+                postIndex = i;
+            } else if (route.at(route.size() - 2) == s.i && pre.empty()) {
+                pre = route;
+                preIndex = i;
+            } else if (route.at(route.size() - 2) == s.j && pre.empty()) {
                 pre = route;
                 preIndex = i;
             }
@@ -325,6 +331,6 @@ int main(int argc, char *argv[]) {
 
     routes = performSavings(routes, savings);
 
-    //printRoutes(routes);
+    printRoutes(routes);
     return 0;
 }

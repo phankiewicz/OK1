@@ -34,7 +34,7 @@ public:
 //Zmienne globalne
 int vehiclesNumber;
 int vehiclesCapacity;
-int routesLength = 0;
+double routesLength=0;
 
 vector<Customer> customersVector;
 
@@ -49,7 +49,6 @@ void print_customersVector(vector<Customer> &v) {
 
 void print_Customer(Customer v) {
     cout << v.id << " " << v.x << " " << v.y << " " << v.demand << " " << v.ready_time << " " << v.due_date << " " <<
-    v.service_duration << endl;
 }
 
 //Funkcja wypisujaca tablice savingsow

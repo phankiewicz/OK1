@@ -48,7 +48,7 @@ void print_customersVector(vector<Customer> &v) {
 }
 
 void print_Customer(Customer v) {
-    cout << v.id << " " << v.x << " " << v.y << " " << v.demand << " " << v.ready_time << " " << v.due_date << " " <<
+    cout << v.id << " " << v.x << " " << v.y << " " << v.demand << " " << v.ready_time << " " << v.due_date << " " << endl;
 }
 
 //Funkcja wypisujaca tablice savingsow

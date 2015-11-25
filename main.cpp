@@ -34,6 +34,7 @@ public:
 //Zmienne globalne
 int vehiclesNumber;
 int vehiclesCapacity;
+int routesLength=0;
 
 vector<Customer> customersVector;
 
@@ -44,6 +45,10 @@ void print_customersVector(vector<Customer> &v) {
         cout << (*it).id << " " << (*it).x << " " << (*it).y << " " << (*it).demand << " " << (*it).ready_time << " " <<
         (*it).due_date << " " << (*it).service_duration << endl;
     }
+}
+
+void print_Customer(Customer v){
+    cout << v.id << " " << v.x << " " << v.y << " " << v.demand << " " << v.ready_time << " " <<v.due_date << " " << v.service_duration << endl;
 }
 
 //Funkcja wypisujaca tablice savingsow
@@ -137,36 +142,7 @@ void data_input_n(char *filename, char *data_quantity) {
 
 
 
-/*
-//Funkcja sprawdzajaca poprawnosc trasy
-int computeRoute(list<Customer> routeNodesList) {
-    list<Customer>:: iterator it1=routeNodesList.begin();
-    list<Customer>::iterator it2=routeNodesList.begin();
-    it2++;
-    int distanceSum=0;
-    int capacitySum=0;
 
-    for(it2; it2!=routeNodesList.end();++it2) {
-        if(distanceSum+distance(it1,it2)<=routeNodesList[it2].due_time){
-            distanceSum+=distance(it1,it2);
-            if(distanceSum<it2.ready_time){
-                distanceSum=it2.ready_time;
-            }
-            distanceSum+=it2.service_duration;
-
-        }
-        else
-            return -1;
-        if(capacitySum+it2.demand<=vehiclesCapacity)
-            capacitySum+=it2.demand;
-        else
-            return -1;
-
-        it1++;
-    }
-    return distanceSum;
-}
-*/
 
 //Funkcja obliczajaca dlugosc trasy miedzy dwoma punktami
 double distance1(Customer point1, Customer point2) {
@@ -209,6 +185,8 @@ void printRoute(vector<Customer> route) {
 }
 
 void printRoutes(vector<vector<Customer>> routes) {
+    if(routes.empty())
+        cout<<"-1";
     for (auto r:routes) {
         printRoute(r);
     }
@@ -224,10 +202,52 @@ vector<Customer> mergeRoute(vector<Customer> a, vector<Customer> b) {
     AB.insert(AB.end(), b.begin(), b.end()); //…believe me, it's OK
     return AB;
 }
-
+/*
 bool isConnectionFeasible(vector<Customer> pre, vector<Customer> post) {
+    //printRoute(pre);
+    //printRoute(post);
     return true; //TODO czy się opłaca i czy można połączyć pre + post
 }
+ */
+
+
+//Funkcja sprawdzajaca poprawnosc trasy, gdy jest poprawna zwraca jej dlugosc
+double isConnectionFeasible(vector<Customer> pre, vector<Customer> post) {
+    vector<Customer> route=mergeRoute(pre,post);
+    int distanceSum=0;
+    int capacitySum=0;
+
+    //printRoute(route);
+
+    for(unsigned long i=1;i<route.size();++i){
+       //cout<<distanceSum<<endl;
+        Customer it1=route.at(i-1);
+        Customer it2=route.at(i);
+        //print_Customer(it1);
+        //print_Customer(it2);
+        //cout<<endl;
+        if(distanceSum+distance1(it1,it2)<=it2.due_date){
+            distanceSum+=distance1(it1,it2);
+            if(distanceSum<it2.ready_time){
+                distanceSum=it2.ready_time;
+            }
+            distanceSum+=it2.service_duration;
+
+        }
+        else
+            return -1;
+        if(capacitySum+it2.demand<=vehiclesCapacity)
+            capacitySum+=it2.demand;
+        else
+            return -1;
+
+    }
+    routesLength+=distanceSum;
+    //cout<<distanceSum<<endl;
+    return distanceSum;
+
+}
+
 
 
 vector<vector<Customer>> createNaiveRoutes() {
@@ -260,7 +280,7 @@ vector<vector<Customer>> performSavings(vector<vector<Customer>> routes, vector<
                 pre = route;
                 preIndex = i;
             }
-            if (!pre.empty() && !post.empty() && isConnectionFeasible(pre, post)) break;
+            if (!pre.empty() && !post.empty() && isConnectionFeasible(pre, post)!=-1) break;
             ++i;
         }
         if (!pre.empty() && !post.empty()) {
@@ -272,6 +292,7 @@ vector<vector<Customer>> performSavings(vector<vector<Customer>> routes, vector<
                 routes.erase(postIndex);
                 routes.erase(preIndex);
             }
+            if(isConnectionFeasible(pre,post)!=-1)
             routes.push_back(newRoute);
         }
         pre.clear();
@@ -305,7 +326,7 @@ int main(int argc, char *argv[]) {
     }
 
     //Wlaczanie kontrolnego wypisywania vectora
-    print_customersVector(customersVector);
+    //print_customersVector(customersVector);
 
     //Wyliczenie dlugosci tablicy savingsow
     unsigned long savingsamount = (customersVector.size() * (customersVector.size() - 1)) / 2;

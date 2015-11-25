@@ -34,7 +34,7 @@ public:
 //Zmienne globalne
 int vehiclesNumber;
 int vehiclesCapacity;
-int routesLength=0;
+double routesLength=0;
 
 vector<Customer> customersVector;
 
@@ -214,7 +214,7 @@ bool isConnectionFeasible(vector<Customer> pre, vector<Customer> post) {
 //Funkcja sprawdzajaca poprawnosc trasy, gdy jest poprawna zwraca jej dlugosc
 double isConnectionFeasible(vector<Customer> pre, vector<Customer> post) {
     vector<Customer> route=mergeRoute(pre,post);
-    int distanceSum=0;
+    double distanceSum=0;
     int capacitySum=0;
 
     //printRoute(route);

@@ -185,6 +185,22 @@ void printRoutes(vector<vector<Customer>> routes) {
     }
 }
 
+
+void printRoute2(vector<Customer> route){
+    for (unsigned long i=1;i<route.size()-1;++i) {
+        printf("%i ", route.at(i).id);
+    }
+    printf("\n");
+}
+
+void printRoutes2(vector<vector<Customer>> routes) {
+    if (routes.empty())
+        cout << "-1";
+    for (auto r:routes) {
+        printRoute2(r);
+    }
+}
+
 vector<Customer> mergeRoute(vector<Customer> a, vector<Customer> b) {
     a.erase(a.end() - 1);
     b.erase(b.begin());
@@ -343,11 +359,13 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-    printRoutes(routes);
     int sum = 0;
     for(vector<Customer> i: routes)
         sum+=isConnectionFeasible(i);
-    printf("Sum = %i\n", sum);
+    printf("%lu %i\n",routes.size(),sum);
+
+    printRoutes2(routes);
+
 
     return 0;
 }

@@ -274,6 +274,8 @@ vector<vector<Customer>> performSavings(vector<vector<Customer>> routes, vector<
             }
             routes.push_back(newRoute);
         }
+        pre.clear();
+        post.clear();
     }
     return routes;
 }

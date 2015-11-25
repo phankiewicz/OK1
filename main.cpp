@@ -34,7 +34,7 @@ public:
 //Zmienne globalne
 int vehiclesNumber;
 int vehiclesCapacity;
-int routesLength=0;
+int routesLength = 0;
 
 vector<Customer> customersVector;
 
@@ -47,8 +47,9 @@ void print_customersVector(vector<Customer> &v) {
     }
 }
 
-void print_Customer(Customer v){
-    cout << v.id << " " << v.x << " " << v.y << " " << v.demand << " " << v.ready_time << " " <<v.due_date << " " << v.service_duration << endl;
+void print_Customer(Customer v) {
+    cout << v.id << " " << v.x << " " << v.y << " " << v.demand << " " << v.ready_time << " " << v.due_date << " " <<
+    v.service_duration << endl;
 }
 
 //Funkcja wypisujaca tablice savingsow
@@ -137,13 +138,6 @@ void data_input_n(char *filename, char *data_quantity) {
 }
 
 
-
-
-
-
-
-
-
 //Funkcja obliczajaca dlugosc trasy miedzy dwoma punktami
 double distance1(Customer point1, Customer point2) {
 
@@ -185,8 +179,8 @@ void printRoute(vector<Customer> route) {
 }
 
 void printRoutes(vector<vector<Customer>> routes) {
-    if(routes.empty())
-        cout<<"-1";
+    if (routes.empty())
+        cout << "-1";
     for (auto r:routes) {
         printRoute(r);
     }
@@ -197,7 +191,7 @@ vector<Customer> mergeRoute(vector<Customer> a, vector<Customer> b) {
     b.erase(b.begin());
 
     vector<Customer> AB;
-    AB.reserve(a.size() + b.size());
+    //AB.reserve(a.size() + b.size());
     AB.insert(AB.end(), a.begin(), a.end()); // ♫ Really don't care
     AB.insert(AB.end(), b.begin(), b.end()); //…believe me, it's OK
     return AB;
@@ -212,42 +206,39 @@ bool isConnectionFeasible(vector<Customer> pre, vector<Customer> post) {
 
 
 //Funkcja sprawdzajaca poprawnosc trasy, gdy jest poprawna zwraca jej dlugosc
-double isConnectionFeasible(vector<Customer> pre, vector<Customer> post) {
-    vector<Customer> route=mergeRoute(pre,post);
-    int distanceSum=0;
-    int capacitySum=0;
+double isConnectionFeasible(vector<Customer> route) {
+    int distanceSum = 0;
+    int capacitySum = 0;
 
     //printRoute(route);
 
-    for(unsigned long i=1;i<route.size();++i){
-       //cout<<distanceSum<<endl;
-        Customer it1=route.at(i-1);
-        Customer it2=route.at(i);
+    for (unsigned long i = 1; i < route.size(); ++i) {
+        //cout<<distanceSum<<endl;
+        Customer it1 = route.at(i - 1);
+        Customer it2 = route.at(i);
         //print_Customer(it1);
         //print_Customer(it2);
         //cout<<endl;
-        if(distanceSum+distance1(it1,it2)<=it2.due_date){
-            distanceSum+=distance1(it1,it2);
-            if(distanceSum<it2.ready_time){
-                distanceSum=it2.ready_time;
+        if (distanceSum + distance1(it1, it2) <= it2.due_date) {
+            distanceSum += distance1(it1, it2);
+            if (distanceSum < it2.ready_time) {
+                distanceSum = it2.ready_time;
             }
-            distanceSum+=it2.service_duration;
-
+            distanceSum += it2.service_duration;
         }
         else
             return -1;
-        if(capacitySum+it2.demand<=vehiclesCapacity)
-            capacitySum+=it2.demand;
+        if (capacitySum + it2.demand <= vehiclesCapacity)
+            capacitySum += it2.demand;
         else
             return -1;
 
     }
-    routesLength+=distanceSum;
+    routesLength += distanceSum;
     //cout<<distanceSum<<endl;
     return distanceSum;
 
 }
-
 
 
 vector<vector<Customer>> createNaiveRoutes() {
@@ -263,40 +254,28 @@ vector<vector<Customer>> createNaiveRoutes() {
 
 vector<vector<Customer>> performSavings(vector<vector<Customer>> routes, vector<Saving> savingsArray) {
     for (Saving s: savingsArray) {
-        vector<Customer> pre, post;
-        vector<vector<Customer>>::iterator preIndex, postIndex;
-        vector<vector<Customer>>::iterator i = routes.begin();
-        for (vector<Customer> route: routes) {
-            if (route.at(1) == s.j && post.empty()) {
-                post = route;
-                postIndex = i;
-            } else if (route.at(1) == s.i && post.empty()) {
-                post = route;
-                postIndex = i;
-            } else if (route.at(route.size() - 2) == s.i && pre.empty()) {
-                pre = route;
-                preIndex = i;
-            } else if (route.at(route.size() - 2) == s.j && pre.empty()) {
-                pre = route;
-                preIndex = i;
+        vector<vector<Customer>>::iterator i = routes.begin(), j = routes.begin();
+        for (vector<Customer> pre: routes) {
+            for (vector<Customer> post: routes) {
+                if (pre == post || pre.empty() || post.empty()) continue;
+                if ((pre.at(pre.size() - 2) == s.i && post.at(1) == s.j) ||
+                    (pre.at(pre.size() - 2) == s.j && post.at(1) == s.i)) {
+                    vector<Customer> route = mergeRoute(pre, post);
+                    if (isConnectionFeasible(route) != -1) {
+                        if (i > j) {
+                            routes.erase(i);
+                            routes.erase(j);
+                        } else {
+                            routes.erase(j);
+                            routes.erase(i);
+                        }
+                        routes.push_back(route);
+                    }
+                }
+                ++j;
             }
-            if (!pre.empty() && !post.empty() && isConnectionFeasible(pre, post)!=-1) break;
             ++i;
         }
-        if (!pre.empty() && !post.empty()) {
-            vector<Customer> newRoute = mergeRoute(pre, post);
-            if (preIndex > postIndex) {
-                routes.erase(preIndex);
-                routes.erase(postIndex);
-            } else {
-                routes.erase(postIndex);
-                routes.erase(preIndex);
-            }
-            if(isConnectionFeasible(pre,post)!=-1)
-            routes.push_back(newRoute);
-        }
-        pre.clear();
-        post.clear();
     }
     return routes;
 }
@@ -354,6 +333,22 @@ int main(int argc, char *argv[]) {
 
     routes = performSavings(routes, savings);
 
+    try {
+        for (vector<Customer> i: routes) {
+            if (isConnectionFeasible(i) == -1) {
+                throw -1;
+            }
+        }
+    } catch (int e) {
+        printf("-1\n");
+        return 0;
+    }
+
     printRoutes(routes);
+    int sum = 0;
+    for(vector<Customer> i: routes)
+        sum+=isConnectionFeasible(i);
+    printf("Sum = %i\n", sum);
+
     return 0;
 }

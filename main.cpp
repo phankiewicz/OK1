@@ -291,9 +291,9 @@ high_resolution_clock::time_point startClock() {
     return high_resolution_clock::now();
 }
 
-double endClock(high_resolution_clock::time_point timePoint) {
+long double endClock(high_resolution_clock::time_point timePoint) {
     auto timePoint2 = high_resolution_clock::now();
-    duration<double> span = duration_cast<duration<double>>(timePoint2 - timePoint);
+    nanoseconds span = duration_cast<nanoseconds>(timePoint2 - timePoint);
     return span.count();
 }
 

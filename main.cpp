@@ -1,13 +1,13 @@
 #include <iostream>
-#include <cstdio>
 #include <fstream>
 #include <vector>
 #include <list>
 #include <cmath>
-#include <cstdlib>
 #include <algorithm>
+#include <chrono>
 
 using namespace std;
+using namespace std::chrono;
 
 class Customer {
 public:
@@ -34,11 +34,11 @@ public:
 //Zmienne globalne
 int vehiclesNumber;
 int vehiclesCapacity;
-double routesLength=0;
+double routesLength = 0;
 
 vector<Customer> customersVector;
 
-//Funkcja wypisujaca kontrolnie vector
+/*//Funkcja wypisujaca kontrolnie vector
 void print_customersVector(vector<Customer> &v) {
     vector<Customer>::iterator it;
     for (it = v.begin(); it != v.end(); ++it) {
@@ -48,7 +48,8 @@ void print_customersVector(vector<Customer> &v) {
 }
 
 void print_Customer(Customer v) {
-    cout << v.id << " " << v.x << " " << v.y << " " << v.demand << " " << v.ready_time << " " << v.due_date << " " << endl;
+    cout << v.id << " " << v.x << " " << v.y << " " << v.demand << " " << v.ready_time << " " << v.due_date << " " <<
+    endl;
 }
 
 //Funkcja wypisujaca tablice savingsow
@@ -57,7 +58,7 @@ void print_savingsArray(Saving savingsArray[], unsigned long savingsamount) {
     for (i = 0; i < savingsamount; ++i) {
         cout << savingsArray[i].saving << endl;
     }
-}
+}*/
 
 bool sortcomparison(Saving i, Saving j) { return (i.saving > j.saving); }
 
@@ -147,12 +148,12 @@ double distance1(Customer point1, Customer point2) {
 }
 
 
-void compute_savings(Saving savingsArray[]) {
+vector<Saving> compute_savings() {
 
     Saving temp;
     Customer magazyn = customersVector.at(0);
 
-    unsigned long savingsposition = 0;
+    vector<Saving> savingsArray;
 
     for (unsigned i = 1; i < customersVector.size(); i++) {
         for (unsigned j = i + 1; j < customersVector.size(); j++) {
@@ -161,15 +162,14 @@ void compute_savings(Saving savingsArray[]) {
             temp.j = customersVector.at(j);
             temp.saving = distance1(magazyn, temp.i) + distance1(magazyn, temp.j) - distance1(temp.i, temp.j);
 
-            savingsArray[savingsposition] = temp;
-            savingsposition++;
+            savingsArray.push_back(temp);
         }
 
     }
-
+    return savingsArray;
 }
 
-void printRoute(vector<Customer> route) {
+/*void printRoute(vector<Customer> route) {
     for (Customer a:route) {
         printf("%i -> ", a.id);
     }
@@ -183,11 +183,11 @@ void printRoutes(vector<vector<Customer>> routes) {
     for (auto r:routes) {
         printRoute(r);
     }
-}
+}*/
 
 
-void printRoute2(vector<Customer> route){
-    for (unsigned long i=1;i<route.size()-1;++i) {
+void printRoute2(vector<Customer> route) {
+    for (unsigned long i = 1; i < route.size() - 1; ++i) {
         printf("%i ", route.at(i).id);
     }
     printf("\n");
@@ -211,14 +211,6 @@ vector<Customer> mergeRoute(vector<Customer> a, vector<Customer> b) {
     AB.insert(AB.end(), b.begin(), b.end()); //…believe me, it's OK
     return AB;
 }
-/*
-bool isConnectionFeasible(vector<Customer> pre, vector<Customer> post) {
-    //printRoute(pre);
-    //printRoute(post);
-    return true; //TODO czy się opłaca i czy można połączyć pre + post
-}
- */
-
 
 //Funkcja sprawdzajaca poprawnosc trasy, gdy jest poprawna zwraca jej dlugosc
 double isConnectionFeasible(vector<Customer> route) {
@@ -295,12 +287,14 @@ vector<vector<Customer>> performSavings(vector<vector<Customer>> routes, vector<
     return routes;
 }
 
-vector<Saving> convert2vector(Saving savingArr[], unsigned long n) {
-    vector<Saving> savings;
-    for (int i = 0; i < n; ++i) {
-        savings.push_back(savingArr[i]);
-    }
-    return savings;
+high_resolution_clock::time_point startClock() {
+    return high_resolution_clock::now();
+}
+
+double endClock(high_resolution_clock::time_point timePoint) {
+    auto timePoint2 = high_resolution_clock::now();
+    duration<double> span = duration_cast<duration<double>>(timePoint2 - timePoint);
+    return span.count();
 }
 
 int main(int argc, char *argv[]) {
@@ -322,20 +316,15 @@ int main(int argc, char *argv[]) {
     //Wlaczanie kontrolnego wypisywania vectora
     //print_customersVector(customersVector);
 
-    //Wyliczenie dlugosci tablicy savingsow
-    unsigned long savingsamount = (customersVector.size() * (customersVector.size() - 1)) / 2;
-
-    //Deklaracja tablicy savingsow
-    Saving savingsArray[savingsamount];
 
     //Uruchomienie procedury obliczania savingsow
-    compute_savings(savingsArray);
+    vector<Saving> savings = compute_savings();
 
     //Kontrolne wypisywanie tablicy savingsow
     //print_savingsArray(savingsArray,savingsamount);
 
     //Sortowanie tablicy savingsow
-    sort(savingsArray, savingsArray + savingsamount, sortcomparison);
+    sort(savings.begin(), savings.end(), sortcomparison);
 
     //Kontrolne wypisywanie tablicy savingsow
     //print_savingsArray(savingsArray,savingsamount);
@@ -343,8 +332,6 @@ int main(int argc, char *argv[]) {
     vector<vector<Customer>> routes = createNaiveRoutes();
 
     //printRoutes(routes);
-
-    vector<Saving> savings = convert2vector(savingsArray, savingsamount);
 
     routes = performSavings(routes, savings);
 
@@ -360,9 +347,9 @@ int main(int argc, char *argv[]) {
     }
 
     int sum = 0;
-    for(vector<Customer> i: routes)
-        sum+=isConnectionFeasible(i);
-    printf("%lu %i\n",routes.size(),sum);
+    for (vector<Customer> i: routes)
+        sum += isConnectionFeasible(i);
+    printf("%lu %i\n", routes.size(), sum);
 
     printRoutes2(routes);
 

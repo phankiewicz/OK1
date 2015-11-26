@@ -297,21 +297,48 @@ long double endClock(high_resolution_clock::time_point timePoint) {
     return span.count();
 }
 
+void save(char *name, vector<vector<Customer>> routes) {
+    //string filename=name;
+    ofstream o;
+    o.open(name, ofstream::out | ofstream::trunc);
+    if(routes.empty())
+        o<<"-1\n";
+    else{
+        int sum = 0;
+        for (vector<Customer> i: routes)
+            sum += isConnectionFeasible(i);
+        printf("%lu %i\n", routes.size(), sum);
+
+        printRoutes2(routes);
+    }
+}
+
 int main(int argc, char *argv[]) {
 
-    if (argc == 2) {
-        //Wczytywanie danych
-        data_input(argv[1]);
+    char *ile = nullptr, *fileName = nullptr, *outFileName = nullptr;
 
-    }
-    else if (argc == 3) {
-        //Wczytywanie okreslonej ilosci danych
-        data_input_n(argv[1], argv[2]);
-    }
-    else {
+    if (argc < 2) {
         printf("Niewlasciwa liczba parametrow\n");
         return 1;
     }
+    for (int i = 1; i < argc; ++i) {
+        string arg = argv[i];
+        if (arg == "-n") {
+            ile = argv[++i];
+            continue;
+        }
+        if (arg == "-o") {
+            outFileName = argv[++i];
+            continue;
+        }
+        else
+            fileName = argv[i];
+    }
+
+    if (ile == nullptr)
+        data_input(fileName);
+    else
+        data_input_n(fileName, ile);
 
     //Wlaczanie kontrolnego wypisywania vectora
     //print_customersVector(customersVector);
@@ -343,6 +370,9 @@ int main(int argc, char *argv[]) {
         }
     } catch (int e) {
         printf("-1\n");
+        routes.clear();
+        if (outFileName != nullptr)
+            save(outFileName, routes);
         return 0;
     }
 
@@ -353,6 +383,7 @@ int main(int argc, char *argv[]) {
 
     printRoutes2(routes);
 
-
+    if (outFileName != nullptr)
+        save(outFileName, routes);
     return 0;
 }

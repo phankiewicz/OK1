@@ -6,6 +6,8 @@
 #include <algorithm>
 #include <chrono>
 #include <unordered_map>
+#include <iomanip>
+#include <cstring>
 
 using namespace std;
 using namespace std::chrono;
@@ -242,7 +244,7 @@ Route mergeRoute(Route a, Route b, Saving s) {
 
 //Funkcja sprawdzajaca poprawnosc trasy, gdy jest poprawna zwraca jej dlugosc
 double isConnectionFeasible(Route route) {
-    int distanceSum = 0;
+    double distanceSum = 0;
     int capacitySum = 0;
 
     /*printRoute2(route);
@@ -316,6 +318,7 @@ unordered_map<int, Route> createNaiveRoutes() {
 
 unordered_map<int, Route> performSavings(unordered_map<int, Route> routes,
                                          vector<Saving> savingsArray) {
+
     unsigned long size = savingsArray.size();
     for (int j = 0; j < size; ++j) {
         Saving s = savingsArray[j];
@@ -362,6 +365,23 @@ long double endClock(high_resolution_clock::time_point timePoint) {
     nanoseconds span = duration_cast<nanoseconds>(timePoint2 - timePoint);
     return span.count();
 }
+/*
+void printRoute2(pair<int, Route> route) {
+    vector<Customer> r = route.second.route;
+    for (unsigned long i = 1; i < r.size() - 1; ++i) {
+        printf("%i ", r.at(i).id);
+    }
+    printf("\n");
+}
+
+void printRoutes2(unordered_map<int, Route> routes) {
+    if (routes.empty())
+        cout << "-1";
+    for (auto r:routes) {
+        printRoute2(r);
+    }
+}
+*/
 
 void save(char *name, unordered_map<int, Route> routes) {
     //string filename=name;
@@ -370,20 +390,42 @@ void save(char *name, unordered_map<int, Route> routes) {
     if (routes.empty())
         o << "-1\n";
     else {
-        int sum = 0;
+        double sum = 0;
         for (pair<int, Route> i: routes) {
             Route x = i.second;
             sum += isConnectionFeasible(x);
         }
-        printf("%lu %i\n", routes.size(), sum);
+        //printf("%lu %0.5f\n", routes.size(), sum);
 
-        printRoutes2(routes);
+        o<<routes.size()<<" "<< fixed << setprecision(5)<<sum<<endl;
+
+        if (routes.empty())
+            cout << "-1";
+        for (auto route:routes) {
+            vector<Customer> r = route.second.route;
+            for (unsigned long i = 1; i < r.size() - 1; ++i) {
+                o<<r.at(i).id<<" ";
+                //printf("%i ", r.at(i).id);
+            }
+            o<<endl;
+            //printf("\n");
+        }
+
     }
+    o.close();
 }
 
 int main(int argc, char *argv[]) {
 
-    char *ile = nullptr, *fileName = nullptr, *outFileName = nullptr;
+    //Domyslna nazwa pliku wynikowego
+    string defaultOutFileName="wynik.txt";
+    char *cdefaultOutFileName = new char[defaultOutFileName.length() + 1];
+    strcpy(cdefaultOutFileName, defaultOutFileName.c_str());
+
+
+
+    //char *ile = nullptr, *fileName = nullptr, *outFileName = nullptr;
+    char *ile = nullptr, *fileName = nullptr, *outFileName = cdefaultOutFileName;
 
     if (argc < 2) {
         printf("Niewlasciwa liczba parametrow\n");
@@ -445,14 +487,17 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-    int sum = 0;
+    double sum = 0;
     for (pair<int, Route> i: routes) {
         Route x = i.second;
         sum += isConnectionFeasible(x);
     }
-    printf("%lu %i\n", routes.size(), sum);
 
-    printRoutes2(routes);
+    //Wyswietlanie wynikow dzialania algorytmu na stdout
+    /*
+    printf("%lu %0.5f\n", routes.size(), sum);
+
+    printRoutes2(routes);*/
 
     if (outFileName != nullptr)
         save(outFileName, routes);

@@ -316,11 +316,32 @@ unordered_map<int, Route> createNaiveRoutes() {
     return routes;
 }
 
+high_resolution_clock::time_point startClock() {
+    return high_resolution_clock::now();
+}
+
+long double endClock(high_resolution_clock::time_point timePoint) {
+    auto timePoint2 = high_resolution_clock::now();
+    nanoseconds span = duration_cast<nanoseconds>(timePoint2 - timePoint);
+    return span.count();
+}
+
+
+
 unordered_map<int, Route> performSavings(unordered_map<int, Route> routes,
                                          vector<Saving> savingsArray) {
 
+    high_resolution_clock::time_point start=startClock();
+
     unsigned long size = savingsArray.size();
     for (int j = 0; j < size; ++j) {
+
+        if(endClock(start)>295000000000){
+            //cout<<"PRZERWANO"<<endl;
+            break;
+        }
+
+
         Saving s = savingsArray[j];
         Customer si = customersVector[s.i], sj = customersVector[s.j];
         if (si.atPosition < 0 || sj.atPosition < 0 || si.atPosition == sj.atPosition)
@@ -355,7 +376,7 @@ unordered_map<int, Route> performSavings(unordered_map<int, Route> routes,
     }
     return routes;
 }
-
+/*
 high_resolution_clock::time_point startClock() {
     return high_resolution_clock::now();
 }
@@ -364,7 +385,7 @@ long double endClock(high_resolution_clock::time_point timePoint) {
     auto timePoint2 = high_resolution_clock::now();
     nanoseconds span = duration_cast<nanoseconds>(timePoint2 - timePoint);
     return span.count();
-}
+}*/
 /*
 void printRoute2(pair<int, Route> route) {
     vector<Customer> r = route.second.route;
